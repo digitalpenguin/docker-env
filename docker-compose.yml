@@ -1,0 +1,33 @@
+version: "3.8"
+
+services:
+
+  nginx:
+    image: nginx:latest
+    volumes:
+      - './public:/var/www/html'
+      - './build/nginx/nginx.conf:/etc/nginx/conf.d/modx2.conf'
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - php
+  
+  php:
+    build:
+      context: ./build/
+    image: php-custom
+    volumes:
+      - './public:/var/www/html'
+    
+  db:
+    image: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: modx
+      MYSQL_DATABASE: modx
+      MYSQL_USER: modx
+      MYSQL_PASSWORD: modx
+    ports:
+      - '3306:3306'
+    volumes:
+      - './mysql:/var/lib/mysql'
