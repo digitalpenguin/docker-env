@@ -5,21 +5,28 @@ services:
   nginx:
     image: nginx:latest
     volumes:
+      - './build/nginx/certs:/etc/nginx/certs/'
       - './public:/var/www/html'
-      - './build/nginx/nginx.conf:/etc/nginx/conf.d/modx2.conf'
+      - './build/nginx/nginx.conf:/etc/nginx/conf.d/site.conf'
     ports:
       - "80:80"
       - "443:443"
     depends_on:
       - php
-  
+    networks:
+      site:
+        ipv4_address: 172.16.48.2
+
   php:
     build:
       context: ./build/
     image: php-custom
     volumes:
       - './public:/var/www/html'
-    
+    networks:
+      site:
+        ipv4_address: 172.16.48.3
+
   db:
     image: mysql
     environment:
@@ -31,3 +38,15 @@ services:
       - '3306:3306'
     volumes:
       - './mysql:/var/lib/mysql'
+    networks:
+      site:
+        ipv4_address: 172.16.48.4
+
+networks:
+  site:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.16.48.0/24
+          gateway: 172.16.48.1
+
